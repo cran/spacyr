@@ -5,6 +5,10 @@
 #' @param model Language package for loading spacy. Example: \code{en} (English) and
 #' \code{de} (German). Default is \code{en}.
 #' @param python_executable the full path to the python excutable, for which spaCy is installed
+#' @param ask logical; if \code{FALSE}, use the first spaCy installation found; 
+#'   if \code{TRUE}, list available spaCy installations and prompt the user 
+#'   for which to use. If another (e.g. \code{python_executable}) is set, then 
+#'   this value will always be treated as \code{FALSE}.
 #' @param virtualenv set a path to the python virtual environment with spaCy installed
 #'   Example: \code{virtualenv = "~/myenv"}
 #' @param condaenv set a path to the anaconda virtual environment with spaCy installed
@@ -13,6 +17,7 @@
 #' @author Akitaka Matsuo
 spacy_initialize <- function(model = "en", 
                              python_executable = NULL,
+                             ask = FALSE,
                              virtualenv = NULL,
                              condaenv = NULL) {
 
@@ -36,7 +41,7 @@ spacy_initialize <- function(model = "en",
         #                      system("where python", intern = TRUE), 
         #                      system("which python", intern = TRUE))
         message("Finding a python executable with spacy installed...")
-        spacy_python <- find_spacy(model)
+        spacy_python <- find_spacy(model, ask = ask)
         if(!is.null(spacy_python)){
             reticulate::use_python(spacy_python, required = TRUE)
         } else {
@@ -62,11 +67,12 @@ spacy_initialize <- function(model = "en",
     spacyr_pyassign("model", model)
     spacyr_pyexec(pyfile = system.file("python", "initialize_spacyPython.py",
                                        package = 'spacyr'))
-    spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
-    spacy_version <- grep("Version" ,spacy_version, value = TRUE)
-    
-    
-    message("successfully initialized (spaCy ", spacy_version,', language model: ', model, ')')
+    # spacy_version <- system2("pip", "show spacy", stdout = TRUE, stderr = TRUE)
+    # spacy_version <- grep("Version" ,spacy_version, value = TRUE)
+    # 
+    spacy_version <- spacyr_pyget("versions")$spacy
+
+    message("successfully initialized (spaCy Version: ", spacy_version,', language model: ', model, ')')
     options("spacy_initialized" = TRUE)
 }
 
@@ -94,16 +100,21 @@ spacy_finalize <- function() {
 #' @return spacy_python
 #' @export
 #' @param model name of the language model
+#' @param ask logical; if \code{FALSE}, use the first spaCy installation found; 
+#'   if \code{TRUE}, list available spaCy installations and prompt the user 
+#'   for which to use. If another (e.g. \code{python_executable}) is set, then 
+#'   this value will always be treated as \code{FALSE}.
 #' @keywords internal
 #' @importFrom data.table data.table
-find_spacy <- function(model = "en"){
+find_spacy <- function(model = "en", ask){
     spacy_found <- `:=` <- NA
     spacy_python <- NULL
     options(warn = -1)
     py_execs <- if(Sys.info()['sysname'] == "Windows") {
         system2("where", "python", stdout = TRUE)
     } else {
-        system2('which', '-a python', stdout = TRUE)
+        c(system2('which', '-a python', stdout = TRUE),
+          system2('which', '-a python3', stdout = TRUE))
     }
     options(warn = 0)
     
@@ -111,7 +122,7 @@ find_spacy <- function(model = "en"){
         stop("No python was found on system PATH")
     }
     df_python_check <- data.table::data.table(py_execs, spacy_found = 0)
-    for(i in 1:nrow(df_python_check)) {
+    for (i in 1:nrow(df_python_check)) {
         py_exec <- df_python_check[i, py_execs]
         sys_message <- check_spacy_model(py_exec, model)
         if (sys_message == 'OK') {
@@ -121,13 +132,17 @@ find_spacy <- function(model = "en"){
     
     if (df_python_check[, sum(spacy_found)] == 0) {
         return(NULL)
-    } else if(df_python_check[, sum(spacy_found)] == 1) {
+    } else if (df_python_check[, sum(spacy_found)] == 1) {
         spacy_python <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in ", spacy_python)
+    } else if (ask == FALSE) {
+        spacy_python <- df_python_check[spacy_found == 1, py_execs][1]
+        message("spaCy (language model: ", model, ") is installed in more than one python")
+        message("spacyr will use ", spacy_python, " (because ask = FALSE)")
     } else {
         spacy_pythons <- df_python_check[spacy_found == 1, py_execs]
         message("spaCy (language model: ", model, ") is installed in more than one python")
-        message(paste(1:length(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
+        message(paste(seq_along(spacy_pythons), spacy_pythons, sep = ': ', collapse = "\n"))
         number <- NA
         while(is.na(number)){
             number <- readline(prompt = "Please select python: ")
@@ -159,6 +174,6 @@ check_spacy_model <- function(py_exec, model) {
             system2(py_exec, c(sprintf("-c \"import spacy; spacy.load('%s'); print('OK')\"", model)), 
                     stderr = TRUE, stdout = TRUE)
     })
-    options(warn = -1)
+    options(warn = 0)
     return(paste(sys_message, collapse = " "))
 }

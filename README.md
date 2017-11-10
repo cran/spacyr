@@ -19,7 +19,7 @@ Installing the package
 2.  Install additional command-line compiler tools.
 
     -   Windows:
-        -   Install \[Virtual Studio Express 2015\]([here](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
+        -   Install [Virtual Studio Express 2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
         -   Install [RTools](https://cran.r-project.org/bin/windows/Rtools/).
     -   macOS:
 
@@ -37,7 +37,7 @@ Installing the package
 
     ``` bash
     pip install -U spacy
-    python -m spacy download en
+    spacy download en
     ```
 
     You can test your installation at the command line using:
@@ -50,13 +50,19 @@ Installing the package
 
 4.  Install the **spacyr** R package:
 
+    -   From GitHub:
+
     To install the latest package from source, you can simply run the following.
 
     ``` r
     devtools::install_github("kbenoit/spacyr", build_vignettes = FALSE)
     ```
 
-    **Coming soon**: Installation from CRAN will be possible using standard methods.
+    -   From CRAN:
+
+    ``` r
+    install.packages("spacyr")
+    ```
 
 <a name="multiplepythons"></a>Multiple Python executables in your system
 ------------------------------------------------------------------------
@@ -65,8 +71,8 @@ If you have multiple Python executables in your systems (for instance if you are
 You can also specify the python executable directly, when calling `spacy_initialize()`. For instance, if your installation of spaCy uses `/usr/local/bin/python`, then you could use:
 
 ``` r
-library(spacyr)
-spacy_initialize(python_executable = "/usr/local/bin/python")
+library("spacyr")
+spacy_initialize()
 ```
 
 Comments and feedback
@@ -81,14 +87,14 @@ A walkthrough of **spacyr**
 
 To allow R to access the underlying Python functionality, it must open a connection by being initialized within your R session.
 
-We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible by searching your system for Python executables, and testing which have spaCy installed. For power users (such as those with multiple installations of Python), it is possible to specify the path manually through the `python_executable` argument, which also makes initialization faster.
+We provide a function for this, `spacy_initialize()`, which attempts to make this process as painless as possible by searching your system for Python executables, and testing which have spaCy installed. For power users (such as those with multiple installations of Python), it is possible to specify the path manually through the `python_executable` argument, which also makes initialization faster. (You will need to change the value on your system of the Python executable.)
 
 ``` r
-require(spacyr)
-## Loading required package: spacyr
+library("spacyr")
 spacy_initialize()
 ## Finding a python executable with spacy installed...
-## spaCy (language model: en) is installed in /usr/local/bin/python
+## spaCy (language model: en) is installed in more than one python
+## spacyr will use /usr/local/bin/python (because ask = FALSE)
 ## successfully initialized (spaCy Version: 1.8.2, language model: en)
 ```
 
@@ -223,7 +229,18 @@ spacy_parse(txt, dependency = TRUE, lemma = FALSE, pos = FALSE)
 
 ### Using other language models
 
-By default, **spacyr** loads an English language model in spacy, but you also can load a German language model (or others) instead by specifying `model` option when calling `spacy_initialize()`.
+By default, **spacyr** loads an English language model. You also can load spaCy's other [language models](https://spacy.io/docs/usage/models) or use one of the [language models with alpha support](https://spacy.io/docs/api/language-models#alpha-support) by specifying the `model` option when calling `spacy_initialize()`. We have sucessfully tested following language models with spaCy version 2.0.1.
+
+| Language   | ModelName         |
+|:-----------|:------------------|
+| German     | `de`              |
+| Spanish    | `es_core_news_sm` |
+| Portuguese | `pt`              |
+| French     | `fr`              |
+| Italian    | `it`              |
+| Dutch      | `nl`              |
+
+This is an example of parsing German texts.
 
 ``` r
 ## first finalize the spacy if it's loaded
@@ -242,7 +259,7 @@ results_german
 ## 3       R           1        3               eine   DET   ART
 ## 4       R           1        4              freie   ADJ  ADJA
 ## 5       R           1        5 Programmiersprache  NOUN    NN
-## 6       R           1        6                 fr PROPN    NE
+## 6       R           1        6                für   ADP  APPR
 ## 7       R           1        7       statistische   ADJ  ADJA
 ## 8       R           1        8       Berechnungen  NOUN    NN
 ## 9       R           1        9                und  CONJ   KON
@@ -252,7 +269,7 @@ results_german
 ## 13      R           2        2              wurde   AUX VAFIN
 ## 14      R           2        3                von   ADP  APPR
 ## 15      R           2        4       Statistikern  NOUN    NN
-## 16      R           2        5                 fr PROPN    NE
+## 16      R           2        5                für   ADP  APPR
 ## 17      R           2        6           Anwender  NOUN    NN
 ## 18      R           2        7                mit   ADP  APPR
 ## 19      R           2        8      statistischen   ADJ  ADJA
@@ -264,9 +281,9 @@ results_german
 ## 25 python           1        3               eine   DET   ART
 ## 26 python           1        4        universelle   ADJ  ADJA
 ## 27 python           1        5                  , PUNCT    $,
-## 28 python           1        6       blicherweise   ADV   ADV
+## 28 python           1        6      üblicherweise   ADV   ADV
 ## 29 python           1        7     interpretierte   ADJ  ADJA
-## 30 python           1        8              hhere   ADJ  ADJA
+## 30 python           1        8             höhere   ADJ  ADJA
 ## 31 python           1        9 Programmiersprache  NOUN    NN
 ## 32 python           1       10                  . PUNCT    $.
 ## 33 python           2        1                Sie  PRON  PPER
@@ -277,7 +294,7 @@ results_german
 ## 38 python           2        6                  , PUNCT    $,
 ## 39 python           2        7            knappen   ADJ  ADJA
 ## 40 python           2        8    Programmierstil  NOUN    NN
-## 41 python           2        9             frdern  VERB VVINF
+## 41 python           2        9            fördern  VERB VVINF
 ## 42 python           2       10                  . PUNCT    $.
 ##    head_token_id dep_rel   entity
 ## 1              2      sb         
@@ -285,18 +302,18 @@ results_german
 ## 3              5      nk         
 ## 4              5      nk         
 ## 5              2      pd         
-## 6              5      nk         
+## 6              5     mnr         
 ## 7              8      nk         
-## 8              2      pd         
+## 8              6      nk         
 ## 9              8      cd         
 ## 10             9      cj         
 ## 11             2   punct         
 ## 12             2      sb         
 ## 13             2    ROOT         
-## 14             6      pg         
+## 14            10     sbp         
 ## 15             3      nk         
-## 16             6      nk         
-## 17            10      oa         
+## 16             4     mnr         
+## 17             5      nk         
 ## 18            10      mo         
 ## 19             9      nk         
 ## 20             7      nk         
@@ -324,7 +341,7 @@ results_german
 ## 42             2   punct
 ```
 
-Note that the additional language models must first be installed in spaCy. The German language model can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
+Note that the additional language models must first be installed in spaCy. The German language model, for example, can be installed (`python -m spacy download de`) before you call `spacy_initialize()`.
 
 ### When you finish
 
@@ -345,8 +362,8 @@ Some of the token- and type-related standard methods from [**quanteda**](http://
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## quanteda version 0.9.9.61
-## Using 3 of 4 cores for parallel computing
+## quanteda version 0.99.9004
+## Using 3 of 4 threads for parallel computing
 docnames(parsedtxt)
 ## [1] "d1" "d2"
 ndoc(parsedtxt)

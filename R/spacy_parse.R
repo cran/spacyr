@@ -15,7 +15,8 @@
 #' @param tag logical whether to return detailed part-of-speech tags, for the
 #'   langage model \code{en}, it uses the OntoNotes 5 version of the Penn
 #'   Treebank tag set (https://spacy.io/docs/usage/pos-tagging#pos-schemes)
-#' @param lemma logical; inlucde lemmatized tokens in the output
+#' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
+#'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
@@ -67,18 +68,18 @@ spacy_parse.character <- function(x,
     tokens <- get_tokens(spacy_out)
     ntokens <- get_ntokens(spacy_out)
     ntokens_by_sent <- get_ntokens_by_sent(spacy_out)
-    #browser()
-    subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
-        csumx <- cumsum(c(0, x[-length(x)]))
-        return(rep(csumx, x))
-    }))
+    
     dt <- data.table(doc_id = rep(spacy_out$docnames, ntokens), 
-                     sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(1:length(x), x))),
-                     token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) 1:x)), 
+                     sentence_id = unlist(lapply(ntokens_by_sent, function(x) rep(seq_along(x), x))),
+                     token_id = unlist(lapply(unlist(ntokens_by_sent), function(x) seq(to = x))), 
                      token = tokens)
     
     if (lemma) {
-        dt[, "lemma" := get_attrs(spacy_out, "lemma_")]
+        model <- spacyr_pyget("model")
+        dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
+        if(model != 'en'){
+            warning("lemmatization may not work properly in model '", model, "'")
+        }
     }
     if (pos) {
         dt[, "pos" := get_tags(spacy_out, "google")]
@@ -89,6 +90,11 @@ spacy_parse.character <- function(x,
 
     ## add dependency data fields
     if (dependency) {
+        subtractor <- unlist(lapply(ntokens_by_sent, function(x) {
+            if(length(x) == 0) return(NULL)
+            csumx <- cumsum(c(0, x[-length(x)]))
+            return(rep(csumx, x))
+        }))
         deps <- get_dependency(spacy_out)
         dt[, c("head_token_id", "dep_rel") := list(deps$head_id - subtractor,
                                                    deps$dep_rel)]
