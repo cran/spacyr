@@ -2,10 +2,10 @@
 % Please edit documentation in R/spacy_parse.R
 \name{spacy_parse}
 \alias{spacy_parse}
-\title{parse a text using spaCy}
+\title{Parse a text using spaCy}
 \usage{
 spacy_parse(x, pos = TRUE, tag = FALSE, lemma = TRUE, entity = TRUE,
-  dependency = FALSE, ...)
+  dependency = FALSE, multithread = TRUE, ...)
 }
 \arguments{
 \item{x}{a character object, a \pkg{quanteda} corpus, or a TIF-compliant
@@ -27,15 +27,18 @@ may not work properly for non-English models)}
 
 \item{dependency}{logical; if \code{TRUE}, analyze and return dependencies}
 
+\item{multithread}{logical; If true, the processing is parallelized using pipe 
+functionality of spacy (\url{https://spacy.io/api/pipe}).}
+
 \item{...}{not used directly}
 }
 \value{
 a \code{data.frame} of tokenized, parsed, and annotated tokens
 }
 \description{
-The spacy_parse() function calls spaCy to both tokenize and tag the texts, 
-and returns a data.table of the results. The function provides options on the
-types of tagsets (\code{tagset_} options) either  \code{"google"} or
+The \code{spacy_parse()} function calls spaCy to both tokenize and tag the
+texts, and returns a data.table of the results. The function provides options
+on the types of tagsets (\code{tagset_} options) either  \code{"google"} or
 \code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
 functionalities of dependency parsing and named entity recognition as an
 option. If \code{"full_parse = TRUE"} is provided, the function returns the

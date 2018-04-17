@@ -2,9 +2,9 @@
 % Please edit documentation in R/spacy_parse.R
 \name{process_document}
 \alias{process_document}
-\title{tokenize text using spaCy}
+\title{Tokenize text using spaCy}
 \usage{
-process_document(x, ...)
+process_document(x, multithread, ...)
 }
 \arguments{
 \item{x}{input text
@@ -14,16 +14,16 @@ This slows down \code{spacy_parse()} but speeds up the later parsing.
 If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 relevant functions are called.}
 
-\item{...}{arguments passed to specific methods}
+\item{multithread}{logical;}
 
-\item{python_exec}{character; select connection type to spaCy, either 
-"rPython" or "Rcpp".}
+\item{...}{arguments passed to specific methods}
 }
 \value{
 result marker object
 }
 \description{
-Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
+Tokenize text using spaCy. The results of tokenization is stored as a Python
+object. To obtain the tokens results in R, use \code{get_tokens()}.
 \url{http://spacy.io}.
 }
 \examples{

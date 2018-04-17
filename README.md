@@ -16,65 +16,19 @@ language processing” Python library from <http://spacy.io>.
 Installing the package
 ----------------------
 
-1.  Install or update Python on your system.
+1.  Install miniconda
 
-    macOS and Linux typically come with Python installed, although you
-    may wish to install a newer or different version from
-    <https://www.python.org/downloads/>.
+    The easiest way to install spaCy and **spacyr** is through an
+    auto-installation function in **spacyr** package. This function
+    utilizes a conda environment and therefore, some version of conda
+    has to be installed in the system. You can install miniconda from
+    <https://conda.io/miniconda.html> (Choose 64-bit version for your
+    system).
 
-    **Windows only:** If you have not yet installed Python, Download and
-    install [Python for
-    Windows](https://www.python.org/downloads/windows/). We recommend
-    using Python 3, although the Python 2.7.x also works. During the
-    installation process, be sure to scroll down in the installation
-    option window and find the “Add Python.exe to Path”, and click on
-    the small red “x.”
+    If you have any version of conda, you can skip this step. You can
+    check it by entering `conda --version` in Console.
 
-    For the installation of `spaCy` and **spacyr** in macOS (in homebrew
-    and for the default Python) and Windows you can find more detailed
-    instructions for a [Mac OS X Installation](inst/doc/MAC.md) and
-    [Windows Installation](inst/doc/WINDOWS.md).
-
-2.  Install additional command-line compiler tools.
-
-    -   Windows:
-        -   Install [Virtual Studio Express
-            2015](https://www.visualstudio.com/post-download-vs/?sku=xdesk&clcid=0x409&telem=ga#).
-        -   Install
-            [RTools](https://cran.r-project.org/bin/windows/Rtools/).
-    -   macOS:
-
-    Either install XCode from the App Store, or an abbreviated version
-    using the following from Terminal:
-
-    ``` bash
-    xcode-select --install
-    ```
-
-    -   Linux: no additional tools are required.
-
-3.  Install spaCy.
-
-    Installation instructions for spaCy are available [from
-    spacy.io](https://spacy.io/docs/usage/). In short, once Python is
-    installed on your system:
-
-    ``` bash
-    pip install -U spacy
-    spacy download en
-    ```
-
-    You can test your installation at the command line using:
-
-    ``` bash
-    python -c "import spacy; spacy.load('en'); print('OK')"
-    ```
-
-    Additional instructions are available from the spaCy website for
-    installing using a [`virtualenv`](https://spacy.io/docs/usage/#pip)
-    or an [Anaconda](https://spacy.io/docs/usage/#conda) installation.
-
-4.  Install the **spacyr** R package:
+2.  Install the **spacyr** R package:
 
     -   From GitHub:
 
@@ -91,21 +45,49 @@ Installing the package
     install.packages("spacyr")
     ```
 
-<a name="multiplepythons"></a>Multiple Python executables in your system
-------------------------------------------------------------------------
+3.  Install spaCy in a conda environment
 
-If you have multiple Python executables in your systems (for instance if
-you are a macOS user and have installed Python 3, you will also have the
-system-installed Python 2.7.x), then the `spacy_initialize()` function
-will check whether each of them have spaCy installed or not.  
-You can also specify the python executable directly, when calling
-`spacy_initialize()`. For instance, if your installation of spaCy uses
-`/usr/local/bin/python`, then you could use:
+    -   For Windows, you need to run R as an administrator to make
+        installation work properly. To do so, right click Rstudio (or R
+        desktop icon) and select “Run as administrator” when
+        launching R.
 
-``` r
-library("spacyr")
-spacy_initialize()
-```
+    -   To install spaCy, you can simply run
+
+    ``` r
+    library(spacy)
+    spacy_install()
+    ```
+
+    This will install the latest version of spaCy (and its required
+    packages) and English language model. After installation, you can
+    initialize spacy in R with
+
+    ``` r
+    spacy_initialize()
+    ```
+
+    This will return the following message if spaCy was installed with
+    this method.
+
+    ``` r
+    ## Found 'spacy_condaenv'. spacyr will use this environment
+    ## successfully initialized (spaCy Version: 2.0.11, language model: en)
+    ## (python options: type = "condaenv", value = "spacy_condaenv")
+    ```
+
+4.  (optional) Add more language models
+
+    For spaCy installed by `spacy_install()`, **spacyr** provides a
+    useful helper function to install additional language models. For
+    instance, to install Gernman language model
+
+    ``` r
+    spacy_download_langmodel("de")
+    ```
+
+    (Again, Windows users have to run this command as an administrator.
+    Otherwise, sim-link to language model will fail.)
 
 Comments and feedback
 ---------------------
@@ -133,10 +115,9 @@ change the value on your system of the Python executable.)
 ``` r
 library("spacyr")
 spacy_initialize()
-## Finding a python executable with spacy installed...
-## spaCy (language model: en) is installed in more than one python
-## spacyr will use /anaconda/bin/python (because ask = FALSE)
-## successfully initialized (spaCy Version: 2.0.1, language model: en)
+## Found 'spacy_condaenv'. spacyr will use this environment
+## successfully initialized (spaCy Version: 2.0.11, language model: en)
+## (python options: type = "condaenv", value = "spacy_condaenv")
 ```
 
 ### Tokenizing and tagging texts
@@ -296,14 +277,14 @@ support](https://spacy.io/docs/api/language-models#alpha-support) by
 specifying the `model` option when calling `spacy_initialize()`. We have
 sucessfully tested following language models with spacy version 2.0.1.
 
-| Language   | ModelName         |
-|:-----------|:------------------|
-| German     | `de`              |
-| Spanish    | `es_core_news_sm` |
-| Portuguese | `pt`              |
-| French     | `fr`              |
-| Italian    | `it`              |
-| Dutch      | `nl`              |
+| Language   | ModelName |
+|:-----------|:----------|
+| German     | `de`      |
+| Spanish    | `es`      |
+| Portuguese | `pt`      |
+| French     | `fr`      |
+| Italian    | `it`      |
+| Dutch      | `nl`      |
 
 This is an example of parsing German texts.
 
@@ -312,7 +293,8 @@ This is an example of parsing German texts.
 spacy_finalize()
 spacy_initialize(model = "de")
 ## Python space is already attached.  If you want to switch to a different Python, please restart R.
-## successfully initialized (spaCy Version: 2.0.1, language model: de)
+## successfully initialized (spaCy Version: 2.0.11, language model: de)
+## (python options: type = "condaenv", value = "spacy_condaenv")
 
 txt_german <- c(R = "R ist eine freie Programmiersprache für statistische Berechnungen und Grafiken. Sie wurde von Statistikern für Anwender mit statistischen Aufgaben entwickelt.",
                python = "Python ist eine universelle, üblicherweise interpretierte höhere Programmiersprache. Sie will einen gut lesbaren, knappen Programmierstil fördern.")
@@ -429,32 +411,25 @@ spaCy.
 
 If you want to skip **spacyr** searching for Python intallation with
 spaCy, you can do so by permanently setting the path to the
-spaCy-enabled Python by specifying it in an R-startup file, which is
-read every time a new `R` is launched. For Mac/Linux, the file is
-`~/.Rprofile` and for
-
-The syntax is:
-
-``` r
-options(spacy_python_setting = list(type = "python_executable",
-                                    py_path = "/the/path/to/python")) # e.g. "/usr/local/bin/python"
-```
-
-These lines can be directly inserted by a text editor. Or from R, enter
-the following (for Mac/Linux):
+spaCy-enabled Python by specifying it in an R-startup file (For
+Mac/Linux, the file is `~/.Rprofile`), which is read every time a new
+`R` is launched. You can set the option permanently when you call
+`spacy_initialize`:
 
 ``` r
-option_string <- 'options(spacy_python_setting = list(type = "python_executable",
-                                    py_path = "/the/path/to/python")) '
-write(option_string, file = "~/.Rprofile", append = TRUE)
+spacy_initialize(save_profile = TRUE)
 ```
 
-Once the file is appropriately set up, the message from
-`spacy_initialize()` changes to something like:
+Once this is appropriately set up, the message from `spacy_initialize()`
+changes to something like:
 
-    ## The python path is already set
-    ## spacyr will use: python_executable = /usr/local/bin/python
-    ## successfully initialized (spaCy Version: 2.0.1, language model: en)
+    ## spacy python option is already set, spacyr will use:
+    ##  condaenv = "spacy_condaenv"
+    ## successfully initialized (spaCy Version: 2.0.11, language model: en)
+    ## (python options: type = "condaenv", value = "spacy_condaenv")
+
+To ignore the permanently set options, you can initialize spacy with
+`refresh_settings = TRUE`.
 
 Using **spacyr** with other packages
 ------------------------------------
@@ -467,8 +442,9 @@ new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## quanteda version 1.0.4
-## Using 7 of 8 threads for parallel computing
+## Package version: 1.2.0
+## Parallel computing: 4 of 8 threads used.
+## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)
 ## [1] "d1" "d2"
 ndoc(parsedtxt)

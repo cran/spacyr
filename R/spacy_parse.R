@@ -1,8 +1,8 @@
-#' parse a text using spaCy
+#' Parse a text using spaCy
 #' 
-#' The spacy_parse() function calls spaCy to both tokenize and tag the texts, 
-#' and returns a data.table of the results. The function provides options on the
-#' types of tagsets (\code{tagset_} options) either  \code{"google"} or
+#' The \code{spacy_parse()} function calls spaCy to both tokenize and tag the
+#' texts, and returns a data.table of the results. The function provides options
+#' on the types of tagsets (\code{tagset_} options) either  \code{"google"} or
 #' \code{"detailed"}, as well as lemmatization (\code{lemma}). It provides a
 #' functionalities of dependency parsing and named entity recognition as an
 #' option. If \code{"full_parse = TRUE"} is provided, the function returns the
@@ -20,6 +20,8 @@
 #' @param lemma logical; inlucde lemmatized tokens in the output (lemmatization 
 #'   may not work properly for non-English models)
 #' @param entity logical; if \code{TRUE}, report named entities
+#' @param multithread logical; If true, the processing is parallelized using pipe 
+#'   functionality of spacy (\url{https://spacy.io/api/pipe}). 
 #' @param dependency logical; if \code{TRUE}, analyze and return dependencies
 #' @param ... not used directly
 #' @return a \code{data.frame} of tokenized, parsed, and annotated tokens
@@ -44,6 +46,7 @@ spacy_parse <- function(x,
                         lemma = TRUE,
                         entity = TRUE, 
                         dependency = FALSE,
+                        multithread = TRUE,
                         ...) {
     UseMethod("spacy_parse")
 }
@@ -58,11 +61,12 @@ spacy_parse.character <- function(x,
                                   lemma = TRUE,
                                   entity = TRUE, 
                                   dependency = FALSE,
+                                  multithread = TRUE,
                                   ...) {
     
     `:=` <- NULL
     
-    spacy_out <- process_document(x)
+    spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
         stop("Document parsing failed")
     }
@@ -134,9 +138,10 @@ spacy_parse.data.frame <- function(x, ...) {
 }
 
 
-#' tokenize text using spaCy
+#' Tokenize text using spaCy
 #' 
-#' Tokenize text using spaCy. The results of tokenization is stored as a python object. To obtain the tokens results in R, use \code{get_tokens()}.
+#' Tokenize text using spaCy. The results of tokenization is stored as a Python
+#' object. To obtain the tokens results in R, use \code{get_tokens()}.
 #' \url{http://spacy.io}.
 #' @param x input text
 #' functionalities including the tagging, named entity recognisiton, dependency 
@@ -144,8 +149,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' This slows down \code{spacy_parse()} but speeds up the later parsing. 
 #' If FALSE, tagging, entity recogitions, and dependendcy analysis when 
 #' relevant functions are called.
-#' @param python_exec character; select connection type to spaCy, either 
-#' "rPython" or "Rcpp". 
+#' @param multithread logical;
 #' @param ... arguments passed to specific methods
 #' @return result marker object
 #' @importFrom methods new
@@ -159,7 +163,7 @@ spacy_parse.data.frame <- function(x, ...) {
 #' }
 #' @export
 #' @keywords internal
-process_document <- function(x,  ...) {
+process_document <- function(x, multithread, ...) {
     # This function passes texts to python and spacy
     # get or set document names
     if (!is.null(names(x))) {
@@ -178,9 +182,10 @@ process_document <- function(x,  ...) {
     x <- unname(x)
     
     spacyr_pyassign("texts", x)
+    spacyr_pyassign("multithread", multithread)
     spacyr_pyexec("spobj = spacyr()")
     
-    spacyr_pyexec("timestamps = spobj.parse(texts)")
+    spacyr_pyexec("timestamps = spobj.parse(texts, multithread = multithread)")
     
     timestamps = as.character(spacyr_pyget("timestamps"))
     output <- spacy_out$new(docnames = docnames, 
