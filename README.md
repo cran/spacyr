@@ -1,75 +1,80 @@
+
 [![CRAN
 Version](https://www.r-pkg.org/badges/version/spacyr)](https://CRAN.R-project.org/package=spacyr)
 ![Downloads](https://cranlogs.r-pkg.org/badges/spacyr) [![Travis-CI
 Build
 Status](https://travis-ci.org/quanteda/spacyr.svg?branch=master)](https://travis-ci.org/quanteda/spacyr)
 [![Appveyor Build
-status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/quanteda/spacyr/branch/master)
+status](https://ci.appveyor.com/api/projects/status/jqt2atp1wqtxy5xd/branch/master?svg=true)](https://ci.appveyor.com/project/kbenoit/spacyr/branch/master)
 [![codecov.io](https://codecov.io/github/quanteda/spacyr/coverage.svg?branch=master)](https://codecov.io/gh/quanteda/spacyr/branch/master)
 
-spacyr: an R wrapper for spaCy
-==============================
+# spacyr: an R wrapper for spaCy
 
 This package is an R wrapper to the spaCy “industrial strength natural
 language processing” Python library from <http://spacy.io>.
 
-Installing the package
-----------------------
+## Installing the package
 
 1.  Install miniconda
-
+    
     The easiest way to install spaCy and **spacyr** is through an
     auto-installation function in **spacyr** package. This function
     utilizes a conda environment and therefore, some version of conda
     has to be installed in the system. You can install miniconda from
     <https://conda.io/miniconda.html> (Choose 64-bit version for your
     system).
-
+    
     If you have any version of conda, you can skip this step. You can
     check it by entering `conda --version` in Console.
 
 2.  Install the **spacyr** R package:
-
-    -   From GitHub:
-
+    
+      - From GitHub:
+        
         To install the latest package from source, you can simply run
         the following.
-
+    
+    <!-- end list -->
+    
     ``` r
     devtools::install_github("quanteda/spacyr", build_vignettes = FALSE)
     ```
-
-    -   From CRAN:
-
+    
+      - From CRAN:
+    
+    <!-- end list -->
+    
     ``` r
     install.packages("spacyr")
     ```
 
 3.  Install spaCy in a conda environment
-
-    -   For Windows, you need to run R as an administrator to make
+    
+      - For Windows, you need to run R as an administrator to make
         installation work properly. To do so, right click Rstudio (or R
-        desktop icon) and select “Run as administrator” when
-        launching R.
-
-    -   To install spaCy, you can simply run
-
+        desktop icon) and select “Run as administrator” when launching
+        R.
+    
+      - To install spaCy, you can simply run
+    
+    <!-- end list -->
+    
     ``` r
-    library(spacy)
+    library("spacyr")
     spacy_install()
     ```
-
+    
     This will install the latest version of spaCy (and its required
     packages) and English language model. After installation, you can
     initialize spacy in R with
-
+    
     ``` r
     spacy_initialize()
     ```
-
+    
     This will return the following message if spaCy was installed with
     this method.
-
+    
     ``` r
     ## Found 'spacy_condaenv'. spacyr will use this environment
     ## successfully initialized (spaCy Version: 2.0.11, language model: en)
@@ -77,27 +82,25 @@ Installing the package
     ```
 
 4.  (optional) Add more language models
-
+    
     For spaCy installed by `spacy_install()`, **spacyr** provides a
     useful helper function to install additional language models. For
     instance, to install Gernman language model
-
+    
     ``` r
     spacy_download_langmodel("de")
     ```
-
+    
     (Again, Windows users have to run this command as an administrator.
     Otherwise, sim-link to language model will fail.)
 
-Comments and feedback
----------------------
+## Comments and feedback
 
 We welcome your comments and feedback. Please file issues on the
 [issues](https://github.com/quanteda/spacyr/issues) page, and/or send us
 comments at <kbenoit@lse.ac.uk> and <A.Matsuo@lse.ac.uk>.
 
-A walkthrough of **spacyr**
----------------------------
+## A walkthrough of **spacyr**
 
 ### Starting a **spacyr** session
 
@@ -278,7 +281,7 @@ specifying the `model` option when calling `spacy_initialize()`. We have
 sucessfully tested following language models with spacy version 2.0.1.
 
 | Language   | ModelName |
-|:-----------|:----------|
+| :--------- | :-------- |
 | German     | `de`      |
 | Spanish    | `es`      |
 | Portuguese | `pt`      |
@@ -389,8 +392,8 @@ results_german
 ```
 
 Note that the additional language models must first be installed in
-spaCy. The German language model, for example, can be installed
-(`python -m spacy download de`) before you call `spacy_initialize()`.
+spaCy. The German language model, for example, can be installed (`python
+-m spacy download de`) before you call `spacy_initialize()`.
 
 ### When you finish
 
@@ -431,18 +434,17 @@ changes to something like:
 To ignore the permanently set options, you can initialize spacy with
 `refresh_settings = TRUE`.
 
-Using **spacyr** with other packages
-------------------------------------
+## Using **spacyr** with other packages
 
 ### **quanteda**
 
 Some of the token- and type-related standard methods from
-[**quanteda**](http://githiub.com/quanteda/quanteda) also work on the
+[**quanteda**](https://github.com/quanteda/quanteda) also work on the
 new tagged token objects:
 
 ``` r
 require(quanteda, warn.conflicts = FALSE, quietly = TRUE)
-## Package version: 1.2.0
+## Package version: 1.3.0
 ## Parallel computing: 4 of 8 threads used.
 ## See https://quanteda.io for tutorials and examples.
 docnames(parsedtxt)
