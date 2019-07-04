@@ -6,8 +6,7 @@
 #' 
 #' @param x a character object or a TIF-compliant corpus data.frame (see
 #'   \url{https://github.com/ropensci/tif})
-#' @param multithread logical; If true, the processing is parallelized using
-#'   pipe functionality of spaCy (\url{https://spacy.io/api/pipe}).
+#' @inheritParams spacy_parse
 #' @param output type of returned object, either \code{"data.frame"} or
 #'   \code{"list"}
 #' @param ... unused
@@ -104,9 +103,15 @@ spacy_extract_nounphrases.character <- function(x,
         data_out <-
             data.table::rbindlist(lapply(doc_id, function(x) {
                 df <- as.data.frame(noun_phrases[[x]], stringsAsFactors = FALSE)
+                if (nrow(df) == 0) return(NULL)
                 df$doc_id <- x
                 return(df)
             }))
+        if (nrow(data_out) == 0) {
+            message("No noun phrase found in documents")
+            return(NULL)
+        }
+
         data_out[, start_id := start_id + 1][, root_id := root_id + 1]
         data.table::setDF(data_out)
         data_out <- data_out[, c(6, 1:5)]

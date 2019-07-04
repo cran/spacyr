@@ -1,7 +1,7 @@
 Package: spacyr
 Type: Package
 Title: Wrapper to the 'spaCy' 'NLP' Library
-Version: 1.0
+Version: 1.2
 Authors@R: c(
     person("Kenneth", "Benoit", email = "kbenoit@lse.ac.uk", role = c("cre", "aut", "cph"), comment = c(ORCID = "0000-0002-0797-564X")), 
     person("Akitaka", "Matsuo", email = "a.matsuo@lse.ac.uk", role = "aut", comment = c(ORCID = "0000-0002-3323-6330")),
@@ -13,7 +13,8 @@ License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.0.0), methods
 Imports: data.table, reticulate (>= 1.6)
-Suggests: knitr, quanteda, R.rsp, rmarkdown, spelling, testthat
+Suggests: dplyr, knitr, lintr, quanteda, R.rsp, rmarkdown, spelling,
+        testthat, tidytext, tibble
 URL: https://spacyr.quanteda.io
 Encoding: UTF-8
 BugReports: https://github.com/quanteda/spacyr/issues
@@ -21,11 +22,11 @@ RoxygenNote: 6.1.1
 Language: en-GB
 VignetteBuilder: R.rsp
 NeedsCompilation: no
-Packaged: 2018-12-15 07:16:36 UTC; kbenoit
+Packaged: 2019-07-04 15:20:03 UTC; kbenoit
 Author: Kenneth Benoit [cre, aut, cph]
     (<https://orcid.org/0000-0002-0797-564X>),
   Akitaka Matsuo [aut] (<https://orcid.org/0000-0002-3323-6330>),
   European Research Council [fnd] (ERC-2011-StG 283794-QUANTESS)
 Maintainer: Kenneth Benoit <kbenoit@lse.ac.uk>
 Repository: CRAN
-Date/Publication: 2018-12-15 07:40:03 UTC
+Date/Publication: 2019-07-04 16:00:02 UTC

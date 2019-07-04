@@ -16,12 +16,30 @@ test_that("spacy_extract_entity data.frame works", {
     expect_equal(
         entities$text,
         c("Gatsby", "Louisiana", "East Side", "New York", "New Haven",
-          "1915", "just a quarter of a century", "Teutonic", "the Great War"))
+          "1915", "just a quarter", "Teutonic", "the Great War"))
     expect_equal(
         entities$ent_type,
-        c("GPE", "GPE", "LOC", "GPE", "GPE", "DATE", "DATE", "NORP", "EVENT"))
+        c("PERSON", "GPE", "LOC", "GPE", "GPE", "DATE", "CARDINAL", "NORP", "EVENT"))
     expect_silent(spacy_finalize())
 })
+
+test_that("spacy_extract_entity data.frame works properly when there is no noun-phrase", {
+    skip_on_cran()
+    # skip_on_appveyor()
+    skip_on_os("solaris")
+    skip_if_no_python_or_no_spacy()
+
+    expect_message(spacy_initialize(), "successfully|already")
+
+    txt1 <- c(doc1 = "He told me all this very much later, but I've put it down here with the idea of exploding those wild rumors about his antecedents, which weren t even faintly true.")
+    expect_message(
+        spacy_extract_entity(txt1, output = "data.frame"),
+        "No entity")
+    expect_equivalent(
+        spacy_extract_entity(txt1, output = "data.frame"),
+        NULL)
+})
+
 
 test_that("spacy_extract_entity list works", {
     skip_on_cran()
@@ -38,7 +56,7 @@ test_that("spacy_extract_entity list works", {
     expect_equal(
         entities,
         list(doc1 = c("Gatsby", "Louisiana", "East Side", "New York"),
-             doc2 = c("New Haven", "1915", "just a quarter of a century",
+             doc2 = c("New Haven", "1915", "just a quarter",
                       "Teutonic", "the Great War"))
     )
 
@@ -121,7 +139,7 @@ test_that("spacy_extract_entity type option works", {
 
     expect_equal(
         unname(unlist(spacy_extract_entity(txt1, output = "list", type = "extended"))),
-        c("1915", "just a quarter of a century")
+        c("1915", "just a quarter")
     )
 
     expect_equal(
@@ -238,7 +256,7 @@ test_that("entity consolidation works", {
         rep("ENTITY", 3)
     )
     expect_equal(
-        entity_consolidate(parsed)$lemma[c(1, 4, 16)],
+        tolower(entity_consolidate(parsed)$lemma[c(1, 4, 16)]), # obviously en_model stop lowercasing lemmas. That's cool
         tolower(entity_consolidate(parsed)$token[c(1, 4, 16)])
     )
 
