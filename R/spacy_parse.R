@@ -82,7 +82,7 @@ spacy_parse.character <- function(x,
                                   multithread = TRUE,
                                   additional_attributes = NULL,
                                   ...) {
-
+    x <- structure(as.character(x), names = names(x))
     `:=` <- `.` <- `.N` <- NULL
     spacy_out <- process_document(x, multithread)
     if (is.null(spacy_out$timestamps)) {
@@ -108,7 +108,7 @@ spacy_parse.character <- function(x,
     if (lemma) {
         model <- spacyr_pyget("model")
         dt[, "lemma" := get_attrs(spacy_out, "lemma_", TRUE)]
-        if (model != "en"){
+        if (substr(model, 0, 2) != "en"){
             warning("lemmatization may not work properly in model '", model, "'")
         }
     }
@@ -222,7 +222,7 @@ process_document <- function(x, multithread, ...) {
         docnames <- paste0("text", 1:length(x))
     }
     if (all(!duplicated(docnames)) == FALSE) {
-        stop("Docmanes are duplicated.")
+        stop("Docnames are duplicated.")
     } else if (all(nchar(docnames) > 0L) == FALSE) {
         stop("Some docnames are missing.")
     }
